@@ -47,7 +47,6 @@ This assumes a properties file has been provided with
 amazon.aws.accesskey=YOUR_AWS_KEY
 amazon.aws.secretkey=YOUR_AWS_SECRET
 amazon.dynamodb.endpoint=YOUR_DESIRED_ENDPOINT
-
 ```
 
 Optionally, the table/column name can be customized by way of the corresponding Schema beans, e.g.:
@@ -62,5 +61,4 @@ Optionally, the table/column name can be customized by way of the corresponding 
     <constructor-arg ref="amazonDynamoDBClient" />
     <constructor-arg ref="tokenSchema" />
   </bean>
-
 ```
