@@ -36,7 +36,7 @@ Once this library is linked, these beans can be wired up in the applicationConte
     <constructor-arg ref="amazonDynamoDBClient" />
   </bean>
 
-  <bean id="userDetailsService" class="DynamoDBUserDetailsManager">
+  <bean id="userDetailsManager" class="com.vivastream.security.oauth2.provider.DynamoDBUserDetailsManager">
     <constructor-arg ref="amazonDynamoDBClient" />
     <!-- Should really set auth manager on this as well, for re-authentication on changePassword(...) -->
   </bean>
