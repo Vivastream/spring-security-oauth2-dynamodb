@@ -91,11 +91,11 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
             authorities = Collections.emptyList();
         }
 
-        UserDetails user = createUser(username, password, authorities, item);
+        UserDetails user = buildUserFromItem(username, password, authorities, item);
         return user;
     }
 
-    protected UserDetails createUser(String username, String password, Collection<? extends GrantedAuthority> authorities, Map<String, AttributeValue> attributeValues) {
+    protected UserDetails buildUserFromItem(String username, String password, Collection<? extends GrantedAuthority> authorities, Map<String, AttributeValue> item) {
         return new User(username, password, authorities);
     }
 
@@ -107,7 +107,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
     @Override
     public void updateUser(UserDetails user) {
         Map<String, AttributeValueUpdate> updates = new HashMap<String, AttributeValueUpdate>();
-        DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), user.getPassword());
+        DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), getPasswordToPersist(user.getPassword(), user));
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnAuthorities(), StringUtils.collectionToCommaDelimitedString(AuthorityUtils.authorityListToSet(user.getAuthorities())));
         enrichUpdates(updates, user);
         client.updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(user.getUsername())), updates);
@@ -117,6 +117,10 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
     protected void enrichUpdates(Map<String, AttributeValueUpdate> updates, UserDetails user) {
     }
 
+    protected String getPasswordToPersist(String newPassword, UserDetails user) {
+        return newPassword;
+    }
+
     @Override
     public void deleteUser(String username) {
         client.deleteItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)));
@@ -124,14 +128,15 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
 
     @Override
     public void changePassword(String oldPassword, String newPassword) {
-        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+        Authentication currentUserAuth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (currentUser == null) {
+        if (currentUserAuth == null) {
             // This would indicate bad coding somewhere
             throw new AccessDeniedException("Can't change password as no Authentication object found in context " + "for current user.");
         }
 
-        String username = currentUser.getName();
+        String username = currentUserAuth.getName();
+        UserDetails user = loadUserByUsername(username, true);
 
         logger.debug("Changing password for user '" + username + "'");
 
@@ -145,14 +150,13 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
         }
 
         Map<String, AttributeValueUpdate> updates = new HashMap<String, AttributeValueUpdate>();
-        DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), newPassword);
+        DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), getPasswordToPersist(newPassword, user));
         client.updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)), updates);
 
-        SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(currentUser, newPassword));
+        SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(user, currentUserAuth, newPassword));
     }
 
-    protected Authentication createNewAuthentication(Authentication currentAuth, String newPassword) {
-        UserDetails user = loadUserByUsername(currentAuth.getName(), true);
+    protected Authentication createNewAuthentication(UserDetails user, Authentication currentAuth, String newPassword) {
 
         UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         newAuthentication.setDetails(currentAuth.getDetails());
