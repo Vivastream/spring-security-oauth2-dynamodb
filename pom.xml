@@ -4,7 +4,7 @@
 
   <groupId>com.vivastream</groupId>
   <artifactId>spring-security-oauth2-dynamodb</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1</version>
   <packaging>jar</packaging>
 
   <name>spring-security-oauth2-dynamodb</name>
@@ -51,6 +51,5 @@
     <developerConnection>scm:git:git@github.com:Vivastream/spring-security-oauth2-dynamodb.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
-
 
 </project>
