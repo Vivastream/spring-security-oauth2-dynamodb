@@ -295,7 +295,7 @@ public class DynamoDBTokenStore implements TokenStore {
     }
 
     public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
-        return loadTokensByClientAndUserIndex(Collections.singletonMap(schema.getAccessColumnClientId(), new Condition().withAttributeValueList(new AttributeValue(clientId))), false);
+        return loadTokensByClientAndUserIndex(Collections.singletonMap(schema.getAccessColumnClientId(), new Condition().withAttributeValueList(new AttributeValue(clientId)).withComparisonOperator(ComparisonOperator.EQ)), false);
     }
 
     private Collection<OAuth2AccessToken> loadTokensByClientAndUserIndex(Map<String, Condition> keyCondition, boolean filterOutNullUsers) {

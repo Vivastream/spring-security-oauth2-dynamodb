@@ -50,8 +50,8 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private final AmazonDynamoDBClient client;
-    private final DynamoDBUserDetailsSchema schema;
+    protected final AmazonDynamoDBClient client;
+    protected final DynamoDBUserDetailsSchema schema;
 
     private AuthenticationManager authenticationManager;
 
@@ -76,22 +76,25 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
     protected UserDetails loadUserByUsername(String username, boolean consistentRead) throws UsernameNotFoundException {
         GetItemResult result = client.getItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)), consistentRead);
 
+        UserDetails user = null;
         Map<String, AttributeValue> item = result.getItem();
-        if (item == null) {
-            return null;
+        if (item != null) {
+            String password = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnPassword()));
+            String authoritiesStr = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnAuthorities()));
+
+            List<GrantedAuthority> authorities = null;
+            if (StringUtils.hasText(authoritiesStr)) {
+                authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesStr);
+            } else {
+                authorities = Collections.emptyList();
+            }
+
+            user = buildUserFromItem(username, password, authorities, item);
         }
 
-        String password = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnPassword()));
-        String authoritiesStr = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnAuthorities()));
-
-        List<GrantedAuthority> authorities = null;
-        if (StringUtils.hasText(authoritiesStr)) {
-            authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesStr);
-        } else {
-            authorities = Collections.emptyList();
+        if (user == null) {
+            throw new UsernameNotFoundException("No user found for " + username);
         }
-
-        UserDetails user = buildUserFromItem(username, password, authorities, item);
         return user;
     }
 
