@@ -53,7 +53,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
     protected final AmazonDynamoDBClient client;
     protected final DynamoDBUserDetailsSchema schema;
 
-    private AuthenticationManager authenticationManager;
+    protected AuthenticationManager authenticationManager;
 
     public DynamoDBUserDetailsManager(AmazonDynamoDBClient client) {
         this(client, new DynamoDBUserDetailsSchema());
@@ -76,21 +76,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
     protected UserDetails loadUserByUsername(String username, boolean consistentRead) throws UsernameNotFoundException {
         GetItemResult result = client.getItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)), consistentRead);
 
-        UserDetails user = null;
-        Map<String, AttributeValue> item = result.getItem();
-        if (item != null) {
-            String password = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnPassword()));
-            String authoritiesStr = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnAuthorities()));
-
-            List<GrantedAuthority> authorities = null;
-            if (StringUtils.hasText(authoritiesStr)) {
-                authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesStr);
-            } else {
-                authorities = Collections.emptyList();
-            }
-
-            user = buildUserFromItem(username, password, authorities, item);
-        }
+        UserDetails user = buildUserFromItem(result.getItem());
 
         if (user == null) {
             throw new UsernameNotFoundException("No user found for " + username);
@@ -98,13 +84,35 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
         return user;
     }
 
+    protected UserDetails buildUserFromItem(Map<String, AttributeValue> item) {
+        if (item == null) {
+            return null;
+        }
+        String username = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnUsername()));
+        String password = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnPassword()));
+        String authoritiesStr = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnAuthorities()));
+
+        List<GrantedAuthority> authorities = null;
+        if (StringUtils.hasText(authoritiesStr)) {
+            authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesStr);
+        } else {
+            authorities = Collections.emptyList();
+        }
+
+        return buildUserFromItem(username, password, authorities, item);
+    }
+
     protected UserDetails buildUserFromItem(String username, String password, Collection<? extends GrantedAuthority> authorities, Map<String, AttributeValue> item) {
         return new User(username, password, authorities);
     }
 
     @Override
-    public void createUser(UserDetails user) {
-        updateUser(user);
+    public void createUser(UserDetails newUser) {
+        // Make sure it doesn't already exist
+        if (userExists(newUser.getUsername())) {
+            throw new UserDetailsAlreadyExistsException("User already exists: " + newUser.getUsername());
+        }
+        updateUser(newUser);
     }
 
     @Override
