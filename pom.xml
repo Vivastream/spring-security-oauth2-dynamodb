@@ -14,7 +14,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spring.security.version>3.2.5.RELEASE</spring.security.version>
     <spring.security.oauth.version>2.0.6.RELEASE</spring.security.oauth.version>
-    <amazon.aws.version>1.7.12</amazon.aws.version>
+    <amazon.aws.version>1.10.11</amazon.aws.version>
   </properties>
 
   <build>
@@ -45,7 +45,7 @@
     </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk</artifactId>
+      <artifactId>aws-java-sdk-dynamodb</artifactId>
       <version>${amazon.aws.version}</version>
     </dependency>
   </dependencies>
