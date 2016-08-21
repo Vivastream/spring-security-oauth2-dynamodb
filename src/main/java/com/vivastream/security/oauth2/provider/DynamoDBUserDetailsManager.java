@@ -34,7 +34,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.util.StringUtils;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
@@ -50,16 +50,16 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    protected final AmazonDynamoDBClient client;
+    protected final AmazonDynamoDB client;
     protected final DynamoDBUserDetailsSchema schema;
 
     protected AuthenticationManager authenticationManager;
 
-    public DynamoDBUserDetailsManager(AmazonDynamoDBClient client) {
+    public DynamoDBUserDetailsManager(AmazonDynamoDB client) {
         this(client, new DynamoDBUserDetailsSchema());
     }
 
-    public DynamoDBUserDetailsManager(AmazonDynamoDBClient client, DynamoDBUserDetailsSchema schema) {
+    public DynamoDBUserDetailsManager(AmazonDynamoDB client, DynamoDBUserDetailsSchema schema) {
         this.client = client;
         this.schema = schema;
     }
