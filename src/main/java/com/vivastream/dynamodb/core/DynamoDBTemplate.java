@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.BatchGetItemResult;
@@ -47,9 +47,9 @@ public class DynamoDBTemplate {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private final AmazonDynamoDBClient client;
+    private final AmazonDynamoDB client;
 
-    public DynamoDBTemplate(AmazonDynamoDBClient client) {
+    public DynamoDBTemplate(AmazonDynamoDB client) {
         Assert.notNull(client, "AmazonDynamoDBClient must not be null");
         this.client = client;
     }

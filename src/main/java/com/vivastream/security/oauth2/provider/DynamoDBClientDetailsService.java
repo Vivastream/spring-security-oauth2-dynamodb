@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.util.StringUtils;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
@@ -37,14 +37,14 @@ import com.vivastream.security.oauth2.common.util.DynamoDBUtils;
  */
 public class DynamoDBClientDetailsService implements ClientDetailsService {
 
-    private final AmazonDynamoDBClient client;
+    private final AmazonDynamoDB client;
     private final DynamoDBClientDetailsSchema schema;
 
-    public DynamoDBClientDetailsService(AmazonDynamoDBClient client) {
+    public DynamoDBClientDetailsService(AmazonDynamoDB client) {
         this(client, new DynamoDBClientDetailsSchema());
     }
 
-    public DynamoDBClientDetailsService(AmazonDynamoDBClient client, DynamoDBClientDetailsSchema schema) {
+    public DynamoDBClientDetailsService(AmazonDynamoDB client, DynamoDBClientDetailsSchema schema) {
         this.client = client;
         this.schema = schema;
     }

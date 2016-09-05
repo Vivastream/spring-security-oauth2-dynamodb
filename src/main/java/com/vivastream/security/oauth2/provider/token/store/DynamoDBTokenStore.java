@@ -34,7 +34,7 @@ import org.springframework.security.oauth2.provider.token.AuthenticationKeyGener
 import org.springframework.security.oauth2.provider.token.DefaultAuthenticationKeyGenerator;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeAction;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
@@ -63,11 +63,11 @@ public class DynamoDBTokenStore implements TokenStore {
     private final DynamoDBTemplate dynamoDBTemplate;
     private final DynamoDBTokenSchema schema;
 
-    public DynamoDBTokenStore(AmazonDynamoDBClient client) {
+    public DynamoDBTokenStore(AmazonDynamoDB client) {
         this(client, new DynamoDBTokenSchema());
     }
 
-    public DynamoDBTokenStore(AmazonDynamoDBClient client, DynamoDBTokenSchema schema) {
+    public DynamoDBTokenStore(AmazonDynamoDB client, DynamoDBTokenSchema schema) {
         this.dynamoDBTemplate = new DynamoDBTemplate(client);
         this.schema = schema;
     }
