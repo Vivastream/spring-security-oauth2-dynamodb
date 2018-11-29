@@ -13,8 +13,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spring.security.version>3.2.5.RELEASE</spring.security.version>
-    <spring.security.oauth.version>2.1.0.RELEASE</spring.security.oauth.version>
-    <amazon.aws.version>1.10.11</amazon.aws.version>
+    <spring.security.oauth.version>2.0.3.RELEASE</spring.security.oauth.version>
+    <amazon.aws.version>1.11.380</amazon.aws.version>
   </properties>
 
   <build>

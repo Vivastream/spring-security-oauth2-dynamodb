@@ -19,14 +19,12 @@ Once this library is linked, these beans can be wired up in the applicationConte
 
   <!-- AWS Client Config -->
   <bean id="amazonDynamoDBClient" class="com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient">
-    <constructor-arg ref="amazonAWSCredentials" />
+    <constructor-arg ref="amazonAWSCredentialProvider" />
     <property name="endpoint" value="${amazon.dynamodb.endpoint}" />
   </bean>
 
-  <bean id="amazonAWSCredentials" class="com.amazonaws.auth.BasicAWSCredentials">
-    <constructor-arg value="${amazon.aws.accesskey}" />
-    <constructor-arg value="${amazon.aws.secretkey}" />
-  </bean>
+  <!-- Can optionally tweak the credential provider -->
+  <bean id="amazonAWSCredentialProvider" class="com.amazonaws.auth.DefaultAWSCredentialsProviderChain" />
 
   <bean id="tokenStore" class="com.vivastream.security.oauth2.provider.token.store.DynamoDBTokenStore">
     <constructor-arg ref="amazonDynamoDBClient" />
@@ -44,8 +42,6 @@ Once this library is linked, these beans can be wired up in the applicationConte
 
 This assumes a properties file has been provided with
 ```
-amazon.aws.accesskey=YOUR_AWS_KEY
-amazon.aws.secretkey=YOUR_AWS_SECRET
 amazon.dynamodb.endpoint=YOUR_DESIRED_ENDPOINT
 ```
 

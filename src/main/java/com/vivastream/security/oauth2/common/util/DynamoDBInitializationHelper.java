@@ -13,6 +13,7 @@
 
 package com.vivastream.security.oauth2.common.util;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
@@ -37,7 +38,7 @@ public class DynamoDBInitializationHelper {
 
     private static final ProvisionedThroughput DEFAULT_PROVISIONED_THROUGHPUT = new ProvisionedThroughput(5l, 5l);
 
-    public static void createTokenTables(AmazonDynamoDBClient client, DynamoDBTokenSchema schema) {
+    public static void createTokenTables(AmazonDynamoDB client, DynamoDBTokenSchema schema) {
         GlobalSecondaryIndex gsiAuthenticationIdToken = new GlobalSecondaryIndex() //
                 .withIndexName(schema.getAccessIndexAuthenticationId()) //
                 .withKeySchema(new KeySchemaElement(schema.getAccessColumnAuthenticationId(), KeyType.HASH)) //
