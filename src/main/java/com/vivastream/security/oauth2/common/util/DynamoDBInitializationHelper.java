@@ -14,7 +14,6 @@
 package com.vivastream.security.oauth2.common.util;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.CreateTableResult;
@@ -86,15 +85,15 @@ public class DynamoDBInitializationHelper {
         CreateTableResult refreshTableresponse = client.createTable(refreshTableRequest);
     }
 
-    public static void createUserDetailsTable(AmazonDynamoDBClient client, DynamoDBUserDetailsSchema schema) {
+    public static void createUserDetailsTable(AmazonDynamoDB client, DynamoDBUserDetailsSchema schema) {
         createHashTable(client, schema.getTableName(), schema.getColumnUsername());
     }
 
-    public static void createClientDetailsTable(AmazonDynamoDBClient client, DynamoDBClientDetailsSchema schema) {
+    public static void createClientDetailsTable(AmazonDynamoDB client, DynamoDBClientDetailsSchema schema) {
         createHashTable(client, schema.getTableName(), schema.getColumnClientId());
     }
 
-    public static void createHashTable(AmazonDynamoDBClient client, String tableName, String hashColumnName) {
+    public static void createHashTable(AmazonDynamoDB client, String tableName, String hashColumnName) {
 
         CreateTableRequest accessTableRequest = new CreateTableRequest() //
                 .withTableName(tableName) //
