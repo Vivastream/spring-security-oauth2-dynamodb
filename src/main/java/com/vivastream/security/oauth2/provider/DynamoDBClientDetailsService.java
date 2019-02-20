@@ -21,6 +21,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
+import org.springframework.security.oauth2.provider.NoSuchClientException;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.util.StringUtils;
 
@@ -55,7 +56,7 @@ public class DynamoDBClientDetailsService implements ClientDetailsService {
         
         Map<String, AttributeValue> item = result.getItem();
         if (item == null) { 
-            return null;
+            throw new NoSuchClientException("Client: " + clientId + " not found.");
         }
         
         String resourceIds = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnResourceIds()));
