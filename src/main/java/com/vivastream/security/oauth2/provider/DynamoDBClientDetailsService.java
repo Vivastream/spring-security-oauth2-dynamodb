@@ -38,8 +38,8 @@ import com.vivastream.security.oauth2.common.util.DynamoDBUtils;
  */
 public class DynamoDBClientDetailsService implements ClientDetailsService {
 
-    private final AmazonDynamoDB client;
-    private final DynamoDBClientDetailsSchema schema;
+    protected final AmazonDynamoDB client;
+    protected final DynamoDBClientDetailsSchema schema;
 
     public DynamoDBClientDetailsService(AmazonDynamoDB client) {
         this(client, new DynamoDBClientDetailsSchema());
