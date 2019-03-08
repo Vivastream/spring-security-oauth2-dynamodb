@@ -1,11 +1,11 @@
 /**
  * Copyright 2014 Vivastream Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
@@ -118,7 +118,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
     @Override
     public void updateUser(UserDetails user) {
         Map<String, AttributeValueUpdate> updates = new HashMap<String, AttributeValueUpdate>();
-        DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), getPasswordToPersist(user.getPassword(), user));
+        DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), user.getPassword());
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnAuthorities(), StringUtils.collectionToCommaDelimitedString(AuthorityUtils.authorityListToSet(user.getAuthorities())));
         enrichUpdates(updates, user);
         client.updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(user.getUsername())), updates);
@@ -126,10 +126,6 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
 
     // A hook where additional fields from the user object can be added to the update list
     protected void enrichUpdates(Map<String, AttributeValueUpdate> updates, UserDetails user) {
-    }
-
-    protected String getPasswordToPersist(String newPassword, UserDetails user) {
-        return newPassword;
     }
 
     @Override
@@ -161,7 +157,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
         }
 
         Map<String, AttributeValueUpdate> updates = new HashMap<String, AttributeValueUpdate>();
-        DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), getPasswordToPersist(newPassword, user));
+        DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), user.getPassword());
         client.updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)), updates);
 
         SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(user, currentUserAuth, newPassword));
