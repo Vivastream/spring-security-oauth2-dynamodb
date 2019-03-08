@@ -3,7 +3,7 @@
 
   <groupId>com.vivastream</groupId>
   <artifactId>spring-security-oauth2-dynamodb</artifactId>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <packaging>jar</packaging>
 
   <name>spring-security-oauth2-dynamodb</name>
