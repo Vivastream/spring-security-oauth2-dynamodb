@@ -72,7 +72,7 @@ public class DynamoDBInitializationHelper {
                 .withProvisionedThroughput(DEFAULT_PROVISIONED_THROUGHPUT) //
         ;
 
-        CreateTableResult accessTableresponse = client.createTable(accessTableRequest);
+        CreateTableResult accessTableResponse = client.createTable(accessTableRequest);
 
         CreateTableRequest refreshTableRequest = new CreateTableRequest() //
                 .withTableName(schema.getRefreshTableName()) //
@@ -103,7 +103,7 @@ public class DynamoDBInitializationHelper {
                 .withProvisionedThroughput(DEFAULT_PROVISIONED_THROUGHPUT) //
         ;
 
-        CreateTableResult accessTableresponse = client.createTable(accessTableRequest);
+        CreateTableResult accessTableResponse = client.createTable(accessTableRequest);
     }
 
 }
