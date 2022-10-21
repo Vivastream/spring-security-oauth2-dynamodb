@@ -38,7 +38,7 @@ import com.vivastream.security.oauth2.common.util.DynamoDBUtils;
  */
 public class DynamoDBClientDetailsService implements ClientDetailsService {
 
-    protected final AmazonDynamoDB client;
+    private final AmazonDynamoDB client;
     protected final DynamoDBClientDetailsSchema schema;
 
     public DynamoDBClientDetailsService(AmazonDynamoDB client) {
@@ -50,23 +50,27 @@ public class DynamoDBClientDetailsService implements ClientDetailsService {
         this.schema = schema;
     }
 
+    protected AmazonDynamoDB getClient() {
+        return client;
+    }
+
     @Override
     public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-        GetItemResult result = client.getItem(schema.getTableName(), Collections.singletonMap(schema.getColumnClientId(), new AttributeValue(clientId)));
-        
+        GetItemResult result = getClient().getItem(schema.getTableName(), Collections.singletonMap(schema.getColumnClientId(), new AttributeValue(clientId)));
+
         Map<String, AttributeValue> item = result.getItem();
-        if (item == null) { 
+        if (item == null) {
             throw new NoSuchClientException("Client: " + clientId + " not found.");
         }
-        
+
         String resourceIds = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnResourceIds()));
         String scopes = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnScopes()));
         String grantTypes = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnAuthorizedGrantTypes()));
         String authorities = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnAuthorities()));
         String redirectUris = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnRegisteredRedirectUris()));
-        
+
         String clientSecret = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnClientSecret()));
-        
+
         ClientDetails clientDetails = createClientDetails(clientId, resourceIds, scopes, grantTypes, authorities, redirectUris, clientSecret, item);
         return clientDetails;
     }
@@ -78,7 +82,7 @@ public class DynamoDBClientDetailsService implements ClientDetailsService {
 
         return cd;
     }
-    
+
     public void saveOrUpdateClient(ClientDetails clientDetails) {
         Map<String, AttributeValueUpdate> updates = new HashMap<String, AttributeValueUpdate>();
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnResourceIds(), StringUtils.collectionToCommaDelimitedString(clientDetails.getResourceIds()));
@@ -86,17 +90,16 @@ public class DynamoDBClientDetailsService implements ClientDetailsService {
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnAuthorizedGrantTypes(), StringUtils.collectionToCommaDelimitedString(clientDetails.getAuthorizedGrantTypes()));
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnAuthorities(), StringUtils.collectionToCommaDelimitedString(AuthorityUtils.authorityListToSet(clientDetails.getAuthorities())));
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnRegisteredRedirectUris(), StringUtils.collectionToCommaDelimitedString(clientDetails.getRegisteredRedirectUri()));
-        
+
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnClientSecret(), clientDetails.getClientSecret());
-        
+
         enrichUpdates(updates, clientDetails);
-        
-        client.updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnClientId(), new AttributeValue(clientDetails.getClientId())), updates);
+
+        getClient().updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnClientId(), new AttributeValue(clientDetails.getClientId())), updates);
     }
-    
+
     // A hook where additional fields from the user object can be added to the update list
     protected void enrichUpdates(Map<String, AttributeValueUpdate> updates, ClientDetails clientDetails) {
     }
-
 
 }

@@ -50,7 +50,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    protected final AmazonDynamoDB client;
+    private final AmazonDynamoDB client;
     protected final DynamoDBUserDetailsSchema schema;
 
     protected AuthenticationManager authenticationManager;
@@ -68,13 +68,17 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
         this.authenticationManager = authenticationManager;
     }
 
+    protected AmazonDynamoDB getClient() {
+        return client;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return loadUserByUsername(username, false);
     }
 
     protected UserDetails loadUserByUsername(String username, boolean consistentRead) throws UsernameNotFoundException {
-        GetItemResult result = client.getItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)), consistentRead);
+        GetItemResult result = getClient().getItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)), consistentRead);
 
         UserDetails user = buildUserFromItem(result.getItem());
 
@@ -121,7 +125,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), user.getPassword());
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnAuthorities(), StringUtils.collectionToCommaDelimitedString(AuthorityUtils.authorityListToSet(user.getAuthorities())));
         enrichUpdates(updates, user);
-        client.updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(user.getUsername())), updates);
+        getClient().updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(user.getUsername())), updates);
     }
 
     // A hook where additional fields from the user object can be added to the update list
@@ -130,7 +134,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
 
     @Override
     public void deleteUser(String username) {
-        client.deleteItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)));
+        getClient().deleteItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)));
     }
 
     @Override
@@ -158,7 +162,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
 
         Map<String, AttributeValueUpdate> updates = new HashMap<String, AttributeValueUpdate>();
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnPassword(), user.getPassword());
-        client.updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)), updates);
+        getClient().updateItem(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username)), updates);
 
         SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(user, currentUserAuth, newPassword));
     }
@@ -175,7 +179,7 @@ public class DynamoDBUserDetailsManager implements UserDetailsManager {
     public boolean userExists(String username) {
         GetItemRequest request = new GetItemRequest(schema.getTableName(), Collections.singletonMap(schema.getColumnUsername(), new AttributeValue(username))) //
                 .withAttributesToGet(schema.getColumnUsername());
-        GetItemResult result = client.getItem(request);
+        GetItemResult result = getClient().getItem(request);
         return result.getItem() != null;
     }
 

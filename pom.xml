@@ -3,7 +3,7 @@
 
   <groupId>com.vivastream</groupId>
   <artifactId>spring-security-oauth2-dynamodb</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.1b</version>
   <packaging>jar</packaging>
 
   <name>spring-security-oauth2-dynamodb</name>
@@ -11,7 +11,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring.version>5.1.5.RELEASE</spring.version>
+    <spring.version>5.1.4.RELEASE</spring.version>
     <spring.security.version>5.1.4.RELEASE</spring.security.version>
     <spring.security.oauth.version>2.3.5.RELEASE</spring.security.oauth.version>
     <amazon.aws.version>1.11.380</amazon.aws.version>

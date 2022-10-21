@@ -67,6 +67,10 @@ public class DynamoDBTokenStore implements TokenStore {
         this(client, new DynamoDBTokenSchema());
     }
 
+    public DynamoDBTemplate getDynamoDBTemplate() {
+        return dynamoDBTemplate;
+    }
+
     public DynamoDBTokenStore(AmazonDynamoDB client, DynamoDBTokenSchema schema) {
         this.dynamoDBTemplate = new DynamoDBTemplate(client);
         this.schema = schema;
@@ -81,7 +85,7 @@ public class DynamoDBTokenStore implements TokenStore {
 
         String key = authenticationKeyGenerator.extractKey(authentication);
         try {
-            String accessTokenId = dynamoDBTemplate.queryUnique(schema.getAccessTableName(), schema.getAccessIndexAuthenticationId(), // 
+            String accessTokenId = getDynamoDBTemplate().queryUnique(schema.getAccessTableName(), schema.getAccessIndexAuthenticationId(), // 
                     Collections.singletonMap(schema.getAccessColumnAuthenticationId(), new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue(key))), // 
                     new ObjectExtractor<String>() {
 
@@ -89,7 +93,7 @@ public class DynamoDBTokenStore implements TokenStore {
                             return values.get(schema.getAccessColumnTokenId()).getS();
                         }
                     });
-            accessToken = dynamoDBTemplate.get(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(accessTokenId)), new ObjectExtractor<OAuth2AccessToken>() {
+            accessToken = getDynamoDBTemplate().get(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(accessTokenId)), new ObjectExtractor<OAuth2AccessToken>() {
 
                 public OAuth2AccessToken extract(Map<String, AttributeValue> values) {
                     return deserializeAccessToken(values.get(schema.getAccessColumnToken()).getB());
@@ -138,7 +142,7 @@ public class DynamoDBTokenStore implements TokenStore {
         updates.put(schema.getAccessColumnAuthentication(), new AttributeValueUpdate(new AttributeValue().withB(serializeAuthentication(authentication)), AttributeAction.PUT));
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getAccessColumnRefreshToken(), extractTokenKey(refreshToken));
 
-        dynamoDBTemplate.update(schema.getAccessTableName(), // 
+        getDynamoDBTemplate().update(schema.getAccessTableName(), // 
                 Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(extractTokenKey(token.getValue()))), // 
                 updates);
     }
@@ -147,7 +151,7 @@ public class DynamoDBTokenStore implements TokenStore {
         OAuth2AccessToken accessToken = null;
 
         try {
-            accessToken = dynamoDBTemplate.get(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(extractTokenKey(tokenValue))), new ObjectExtractor<OAuth2AccessToken>() {
+            accessToken = getDynamoDBTemplate().get(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(extractTokenKey(tokenValue))), new ObjectExtractor<OAuth2AccessToken>() {
 
                 public OAuth2AccessToken extract(Map<String, AttributeValue> values) {
                     return deserializeAccessToken(values.get(schema.getAccessColumnToken()).getB());
@@ -170,7 +174,7 @@ public class DynamoDBTokenStore implements TokenStore {
     }
 
     public void removeAccessToken(String tokenValue) {
-        dynamoDBTemplate.delete(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(extractTokenKey(tokenValue))));
+        getDynamoDBTemplate().delete(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(extractTokenKey(tokenValue))));
     }
 
     public OAuth2Authentication readAuthentication(OAuth2AccessToken token) {
@@ -181,7 +185,7 @@ public class DynamoDBTokenStore implements TokenStore {
         OAuth2Authentication authentication = null;
 
         try {
-            authentication = dynamoDBTemplate.get(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(extractTokenKey(token))), new ObjectExtractor<OAuth2Authentication>() {
+            authentication = getDynamoDBTemplate().get(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(extractTokenKey(token))), new ObjectExtractor<OAuth2Authentication>() {
 
                 public OAuth2Authentication extract(Map<String, AttributeValue> values) {
                     return deserializeAuthentication(values.get(schema.getAccessColumnAuthentication()).getB());
@@ -204,7 +208,7 @@ public class DynamoDBTokenStore implements TokenStore {
         updates.put(schema.getRefreshColumnToken(), new AttributeValueUpdate(new AttributeValue().withB(serializeRefreshToken(refreshToken)), AttributeAction.PUT));
         updates.put(schema.getRefreshColumnAuthentication(), new AttributeValueUpdate(new AttributeValue().withB(serializeAuthentication(authentication)), AttributeAction.PUT));
 
-        dynamoDBTemplate.update(schema.getRefreshTableName(), // 
+        getDynamoDBTemplate().update(schema.getRefreshTableName(), // 
                 Collections.singletonMap(schema.getRefreshColumnTokenId(), new AttributeValue(extractTokenKey(refreshToken.getValue()))), // 
                 updates);
     }
@@ -213,7 +217,7 @@ public class DynamoDBTokenStore implements TokenStore {
         OAuth2RefreshToken refreshToken = null;
 
         try {
-            refreshToken = dynamoDBTemplate.get(schema.getRefreshTableName(), Collections.singletonMap(schema.getRefreshColumnTokenId(), new AttributeValue(extractTokenKey(token))), new ObjectExtractor<OAuth2RefreshToken>() {
+            refreshToken = getDynamoDBTemplate().get(schema.getRefreshTableName(), Collections.singletonMap(schema.getRefreshColumnTokenId(), new AttributeValue(extractTokenKey(token))), new ObjectExtractor<OAuth2RefreshToken>() {
 
                 public OAuth2RefreshToken extract(Map<String, AttributeValue> values) {
                     return deserializeRefreshToken(values.get(schema.getRefreshColumnToken()).getB());
@@ -236,7 +240,7 @@ public class DynamoDBTokenStore implements TokenStore {
     }
 
     public void removeRefreshToken(String token) {
-        dynamoDBTemplate.delete(schema.getRefreshTableName(), Collections.singletonMap(schema.getRefreshColumnTokenId(), new AttributeValue(extractTokenKey(token))));
+        getDynamoDBTemplate().delete(schema.getRefreshTableName(), Collections.singletonMap(schema.getRefreshColumnTokenId(), new AttributeValue(extractTokenKey(token))));
     }
 
     public OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken token) {
@@ -247,7 +251,7 @@ public class DynamoDBTokenStore implements TokenStore {
         OAuth2Authentication authentication = null;
 
         try {
-            authentication = dynamoDBTemplate.get(schema.getRefreshTableName(), Collections.singletonMap(schema.getRefreshColumnTokenId(), new AttributeValue(extractTokenKey(value))), new ObjectExtractor<OAuth2Authentication>() {
+            authentication = getDynamoDBTemplate().get(schema.getRefreshTableName(), Collections.singletonMap(schema.getRefreshColumnTokenId(), new AttributeValue(extractTokenKey(value))), new ObjectExtractor<OAuth2Authentication>() {
 
                 public OAuth2Authentication extract(Map<String, AttributeValue> values) {
                     return deserializeAuthentication(values.get(schema.getRefreshColumnAuthentication()).getB());
@@ -273,8 +277,8 @@ public class DynamoDBTokenStore implements TokenStore {
         String tokenId = null;
 
         try {
-            tokenId = dynamoDBTemplate.queryUnique(schema.getAccessTableName(), schema.getAccessIndexRefreshToken(), //
-                    Collections.singletonMap(schema.getAccessColumnRefreshToken(), new Condition().withAttributeValueList(new AttributeValue(extractTokenKey(refreshToken))).withComparisonOperator(ComparisonOperator.EQ)),// 
+            tokenId = getDynamoDBTemplate().queryUnique(schema.getAccessTableName(), schema.getAccessIndexRefreshToken(), //
+                    Collections.singletonMap(schema.getAccessColumnRefreshToken(), new Condition().withAttributeValueList(new AttributeValue(extractTokenKey(refreshToken))).withComparisonOperator(ComparisonOperator.EQ)), // 
                     new ObjectExtractor<String>() {
 
                         public String extract(Map<String, AttributeValue> values) {
@@ -291,7 +295,7 @@ public class DynamoDBTokenStore implements TokenStore {
             return;
         }
 
-        dynamoDBTemplate.delete(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(tokenId)));
+        getDynamoDBTemplate().delete(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(tokenId)));
     }
 
     public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
@@ -303,7 +307,7 @@ public class DynamoDBTokenStore implements TokenStore {
 
         List<String> accessTokenIds = null;
         try {
-            accessTokenIds = dynamoDBTemplate.query(schema.getAccessTableName(), schema.getAccessIndexClientIdAndUserName(), keyCondition, //
+            accessTokenIds = getDynamoDBTemplate().query(schema.getAccessTableName(), schema.getAccessIndexClientIdAndUserName(), keyCondition, //
                     new ObjectExtractor<String>() {
 
                         public String extract(Map<String, AttributeValue> values) {
@@ -316,11 +320,11 @@ public class DynamoDBTokenStore implements TokenStore {
                 keys.add(Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(accessTokenId)));
             }
             if (filterOutNullUsers) {
-                accessTokens = dynamoDBTemplate.batchGet(schema.getAccessTableName(), // 
+                accessTokens = getDynamoDBTemplate().batchGet(schema.getAccessTableName(), // 
                         new KeysAndAttributes().withKeys(keys).withConsistentRead(true).withAttributesToGet(schema.getAccessColumnTokenId(), schema.getAccessColumnToken(), schema.getAccessColumnIsNullUser()), // 
                         new NonNullUserSafeAccessTokenExtractor());
             } else {
-                accessTokens = dynamoDBTemplate.batchGet(schema.getAccessTableName(), // 
+                accessTokens = getDynamoDBTemplate().batchGet(schema.getAccessTableName(), // 
                         new KeysAndAttributes().withKeys(keys).withConsistentRead(true).withAttributesToGet(schema.getAccessColumnTokenId(), schema.getAccessColumnToken()), // 
                         new SafeAccessTokenExtractor());
             }
@@ -381,7 +385,7 @@ public class DynamoDBTokenStore implements TokenStore {
                 return deserializeAccessToken(values.get(schema.getAccessColumnToken()).getB());
             } catch (IllegalArgumentException e) {
                 String tokenId = values.get(schema.getAccessColumnTokenId()).getS();
-                dynamoDBTemplate.delete(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(tokenId)));
+                getDynamoDBTemplate().delete(schema.getAccessTableName(), Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(tokenId)));
                 return null;
             }
         }
