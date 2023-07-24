@@ -28,6 +28,7 @@ public class DynamoDBTokenSchema {
     private static final String DEFAULT_ACCESS_COLUMN_CLIENT_ID = "client_id";
     private static final String DEFAULT_ACCESS_COLUMN_AUTHENTICATION = "authentication";
     private static final String DEFAULT_ACCESS_COLUMN_REFRESH_TOKEN = "refresh_token";
+    private static final String DEFAULT_ACCESS_COLUMN_TTL_EXPIRY = "ttl_expiry";
 
     private static final String DEFAULT_ACCESS_INDEX_AUTHENTICATION_ID = "idx_authentication_id";
     private static final String DEFAULT_ACCESS_INDEX_REFRESH_TOKEN = "idx_refresh_token";
@@ -43,6 +44,7 @@ public class DynamoDBTokenSchema {
     private static final String DEFAULT_REFRESH_COLUMN_TOKEN_ID = "token_id";
     private static final String DEFAULT_REFRESH_COLUMN_TOKEN = "token";
     private static final String DEFAULT_REFRESH_COLUMN_AUTHENTICATION = "authentication";
+    private static final String DEFAULT_REFRESH_COLUMN_TTL_EXPIRY = "ttl_expiry";
 
     // Access Token Table
     private String accessTableName = DEFAULT_ACCESS_TABLE_NAME;
@@ -55,6 +57,7 @@ public class DynamoDBTokenSchema {
     private String accessColumnClientId = DEFAULT_ACCESS_COLUMN_CLIENT_ID;
     private String accessColumnAuthentication = DEFAULT_ACCESS_COLUMN_AUTHENTICATION;
     private String accessColumnRefreshToken = DEFAULT_ACCESS_COLUMN_REFRESH_TOKEN;
+    private String accessColumnTtlExpiry = DEFAULT_ACCESS_COLUMN_TTL_EXPIRY;
 
     // Access Token Global Secondary Index [on accessColumnAuthenticationId]
     private String accessIndexAuthenticationId = DEFAULT_ACCESS_INDEX_AUTHENTICATION_ID;
@@ -73,6 +76,7 @@ public class DynamoDBTokenSchema {
     private String refreshColumnTokenId = DEFAULT_REFRESH_COLUMN_TOKEN_ID;
     private String refreshColumnToken = DEFAULT_REFRESH_COLUMN_TOKEN;
     private String refreshColumnAuthentication = DEFAULT_REFRESH_COLUMN_AUTHENTICATION;
+    private String refreshColumnTtlExpiry = DEFAULT_REFRESH_COLUMN_TTL_EXPIRY;
 
     public String getAccessTableName() {
         return accessTableName;
@@ -137,6 +141,14 @@ public class DynamoDBTokenSchema {
     public void setAccessColumnRefreshToken(String accessColumnRefreshToken) {
         this.accessColumnRefreshToken = accessColumnRefreshToken;
     }
+    
+    public String getAccessColumnTtlExpiry() {
+		return accessColumnTtlExpiry;
+	}
+    
+    public void setAccessColumnTtlExpiry(String accessColumnTtlExpiry) {
+		this.accessColumnTtlExpiry = accessColumnTtlExpiry;
+	}
 
     public String getAccessIndexAuthenticationId() {
         return accessIndexAuthenticationId;
@@ -217,5 +229,13 @@ public class DynamoDBTokenSchema {
     public void setRefreshColumnAuthentication(String refreshColumnAuthentication) {
         this.refreshColumnAuthentication = refreshColumnAuthentication;
     }
+    
+    public String getRefreshColumnTtlExpiry() {
+		return refreshColumnTtlExpiry;
+	}
+    
+    public void setRefreshColumnTtlExpiry(String refreshColumnTtlExpiry) {
+		this.refreshColumnTtlExpiry = refreshColumnTtlExpiry;
+	}
 
 }

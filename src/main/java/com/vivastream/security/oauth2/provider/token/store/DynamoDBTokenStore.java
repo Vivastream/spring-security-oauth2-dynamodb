@@ -21,12 +21,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -141,6 +143,11 @@ public class DynamoDBTokenStore implements TokenStore {
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getAccessColumnClientId(), authentication.getOAuth2Request().getClientId());
         updates.put(schema.getAccessColumnAuthentication(), new AttributeValueUpdate(new AttributeValue().withB(serializeAuthentication(authentication)), AttributeAction.PUT));
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getAccessColumnRefreshToken(), extractTokenKey(refreshToken));
+        
+        Date expiration = token.getExpiration();
+        if (schema.getAccessColumnTtlExpiry() != null && expiration != null) {
+            updates.put(schema.getAccessColumnTtlExpiry(), new AttributeValueUpdate(new AttributeValue().withN(Long.toString(expiration.getTime() / 1000L)), AttributeAction.PUT));
+        }
 
         getDynamoDBTemplate().update(schema.getAccessTableName(), // 
                 Collections.singletonMap(schema.getAccessColumnTokenId(), new AttributeValue(extractTokenKey(token.getValue()))), // 
@@ -207,6 +214,15 @@ public class DynamoDBTokenStore implements TokenStore {
         Map<String, AttributeValueUpdate> updates = new HashMap<String, AttributeValueUpdate>();
         updates.put(schema.getRefreshColumnToken(), new AttributeValueUpdate(new AttributeValue().withB(serializeRefreshToken(refreshToken)), AttributeAction.PUT));
         updates.put(schema.getRefreshColumnAuthentication(), new AttributeValueUpdate(new AttributeValue().withB(serializeAuthentication(authentication)), AttributeAction.PUT));
+
+        
+        Date expiration = null;
+        if (refreshToken instanceof ExpiringOAuth2RefreshToken) {
+        	expiration = ((ExpiringOAuth2RefreshToken)refreshToken).getExpiration();
+        }
+        if (schema.getRefreshColumnTtlExpiry() != null && expiration != null) {
+            updates.put(schema.getRefreshColumnTtlExpiry(), new AttributeValueUpdate(new AttributeValue().withN(Long.toString(expiration.getTime() / 1000L)), AttributeAction.PUT));
+        }
 
         getDynamoDBTemplate().update(schema.getRefreshTableName(), // 
                 Collections.singletonMap(schema.getRefreshColumnTokenId(), new AttributeValue(extractTokenKey(refreshToken.getValue()))), // 
