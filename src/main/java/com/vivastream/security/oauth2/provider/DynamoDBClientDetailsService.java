@@ -69,15 +69,20 @@ public class DynamoDBClientDetailsService implements ClientDetailsService {
         String authorities = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnAuthorities()));
         String redirectUris = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnRegisteredRedirectUris()));
 
+        Integer accessTokenValidity = DynamoDBUtils.nullSafeGetInt(item.get(schema.getColumnAccessTokenValidity()));
+        Integer refreshTokenValidity = DynamoDBUtils.nullSafeGetInt(item.get(schema.getColumnRefreshTokenValidity()));
+
         String clientSecret = DynamoDBUtils.nullSafeGetS(item.get(schema.getColumnClientSecret()));
 
-        ClientDetails clientDetails = createClientDetails(clientId, resourceIds, scopes, grantTypes, authorities, redirectUris, clientSecret, item);
+        ClientDetails clientDetails = createClientDetails(clientId, resourceIds, scopes, grantTypes, authorities, redirectUris, accessTokenValidity, refreshTokenValidity, clientSecret, item);
         return clientDetails;
     }
 
     // A hook for creating a different [or enriched] ClientDetails]
-    protected ClientDetails createClientDetails(String clientId, String resourceIds, String scopes, String grantTypes, String authorities, String redirectUris, String clientSecret, Map<String, AttributeValue> attributeValues) {
+    protected ClientDetails createClientDetails(String clientId, String resourceIds, String scopes, String grantTypes, String authorities, String redirectUris, Integer accessTokenValidity, Integer refreshTokenValidity, String clientSecret, Map<String, AttributeValue> attributeValues) {
         BaseClientDetails cd = new BaseClientDetails(clientId, resourceIds, scopes, grantTypes, authorities, redirectUris);
+        cd.setAccessTokenValiditySeconds(accessTokenValidity);
+        cd.setRefreshTokenValiditySeconds(refreshTokenValidity);
         cd.setClientSecret(clientSecret);
 
         return cd;
@@ -90,6 +95,8 @@ public class DynamoDBClientDetailsService implements ClientDetailsService {
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnAuthorizedGrantTypes(), StringUtils.collectionToCommaDelimitedString(clientDetails.getAuthorizedGrantTypes()));
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnAuthorities(), StringUtils.collectionToCommaDelimitedString(AuthorityUtils.authorityListToSet(clientDetails.getAuthorities())));
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnRegisteredRedirectUris(), StringUtils.collectionToCommaDelimitedString(clientDetails.getRegisteredRedirectUri()));
+        DynamoDBUtils.nullSafeUpdateInt(updates, schema.getColumnAccessTokenValidity(), clientDetails.getAccessTokenValiditySeconds());
+        DynamoDBUtils.nullSafeUpdateInt(updates, schema.getColumnRefreshTokenValidity(), clientDetails.getRefreshTokenValiditySeconds());
 
         DynamoDBUtils.nullSafeUpdateS(updates, schema.getColumnClientSecret(), clientDetails.getClientSecret());
 

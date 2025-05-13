@@ -37,5 +37,16 @@ public class DynamoDBUtils {
         return value == null ? null : value.getS();
     }
 
+    public static void nullSafeUpdateInt(Map<String, AttributeValueUpdate> updates, String column, Integer value) {
+        if (value == null) {
+            updates.put(column, new AttributeValueUpdate().withAction(AttributeAction.DELETE));
+        } else {
+            updates.put(column, new AttributeValueUpdate(new AttributeValue().withN(value.toString()), AttributeAction.PUT));
+        }
+    }
+
+    public static Integer nullSafeGetInt(AttributeValue value) {
+        return value == null ? null : Integer.parseInt(value.getN());
+    }
 
 }

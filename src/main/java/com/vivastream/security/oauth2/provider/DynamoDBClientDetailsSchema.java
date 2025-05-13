@@ -29,6 +29,8 @@ public class DynamoDBClientDetailsSchema {
     private static final String DEFAULT_COLUMN_AUTHORIZED_GRANT_TYPES = "authorized_grant_types";
     private static final String DEFAULT_COLUMN_AUTHORITIES = "authorities";
     private static final String DEFAULT_COLUMN_REGISTERED_REDIRECT_URIS = "registered_redirect_uris";
+    private static final String DEFAULT_COLUMN_ACCESS_TOKEN_VALIDITY = "access_token_validity";
+    private static final String DEFAULT_COLUMN_REFRESH_TOKEN_VALIDITY = "refresh_token_validity";
 
     private String tableName = DEFAULT_TABLE_NAME;
 
@@ -39,6 +41,8 @@ public class DynamoDBClientDetailsSchema {
     private String columnAuthorizedGrantTypes = DEFAULT_COLUMN_AUTHORIZED_GRANT_TYPES;
     private String columnAuthorities = DEFAULT_COLUMN_AUTHORITIES;
     private String columnRegisteredRedirectUris = DEFAULT_COLUMN_REGISTERED_REDIRECT_URIS;
+    private String columnAccessTokenValidity = DEFAULT_COLUMN_ACCESS_TOKEN_VALIDITY;
+    private String columnRefreshTokenValidity = DEFAULT_COLUMN_REFRESH_TOKEN_VALIDITY;
 
     public String getTableName() {
         return tableName;
@@ -104,4 +108,19 @@ public class DynamoDBClientDetailsSchema {
         this.columnRegisteredRedirectUris = columnRegisteredRedirectUris;
     }
 
+    public String getColumnAccessTokenValidity() {
+        return columnAccessTokenValidity;
+    }
+
+    public void setColumnAccessTokenValidity(String columnAccessTokenValidity) {
+        this.columnAccessTokenValidity = columnAccessTokenValidity;
+    }
+
+    public String getColumnRefreshTokenValidity() {
+        return columnRefreshTokenValidity;
+    }
+
+    public void setColumnRefreshTokenValidity(String columnRefreshTokenValidity) {
+        this.columnRefreshTokenValidity = columnRefreshTokenValidity;
+    }
 }
